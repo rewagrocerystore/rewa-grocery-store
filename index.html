@@ -35,7 +35,6 @@
 
     .add { background:#25D366; color:white; }
     .pay { background:#6c5ce7; color:white; }
-    .done { background:#0984e3; color:white; }
 
     .qty {
       display:flex;
@@ -59,12 +58,6 @@
       padding:8px;
       margin-top:5px;
     }
-
-    .qr {
-      width:150px;
-      display:block;
-      margin:auto;
-    }
   </style>
 </head>
 
@@ -84,19 +77,14 @@
 
   <input type="text" id="address" placeholder="Enter address">
 
-  <!-- QR -->
-  <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8109788338@ybl" />
-
-  <button class="pay" onclick="payUPI()">Pay via UPI</button>
-  <button class="done" onclick="paymentDone()">Payment Done</button>
-  <button class="add" onclick="placeOrder()">Place Order</button>
+  <button class="pay" onclick="goToPayment()">Pay via UPI</button>
+  <button class="add" onclick="placeOrder()">Place Order via WhatsApp</button>
 </div>
 
 <script>
 window.onload = function() {
 
 const whatsappNumber = "918109788338";
-const upiId = "8109788338@ybl";
 
 let cart = [];
 
@@ -104,11 +92,15 @@ const products = [
   { name:"Rice (1kg)", price:70 },
   { name:"Flour (1kg)", price:45 },
   { name:"Milk (1L)", price:75 },
-  { name:"Sugar (1kg)", price:50 }
+  { name:"Sugar (1kg)", price:50 },
+  { name:"Oil (1L)", price:200 },
+  { name:"Potato (1kg)", price:30 },
+  { name:"Tomato (1kg)", price:25 }
 ];
 
 const container = document.getElementById("products");
 
+// Render products
 products.forEach((p,i)=>{
   const div=document.createElement("div");
   div.className="card";
@@ -124,20 +116,24 @@ products.forEach((p,i)=>{
   container.appendChild(div);
 });
 
+// Quantity change
 window.changeQty = function(i,delta){
   let item = cart.find(x=>x.index===i);
 
   if(!item && delta>0){
     cart.push({index:i, qty:1});
-  } else if(item){
+  } 
+  else if(item){
     item.qty += delta;
     if(item.qty<=0){
       cart = cart.filter(x=>x.index!==i);
     }
   }
+
   updateCart();
 }
 
+// Update cart
 function updateCart(){
   let total=0;
   document.getElementById("cartItems").innerHTML="";
@@ -164,19 +160,24 @@ function updateCart(){
   document.getElementById("grandTotal").innerText=total+delivery;
 }
 
-window.payUPI = function(){
-  let total=document.getElementById("grandTotal").innerText;
-  if(total==0) return alert("Cart empty hai");
+// Go to payment page
+window.goToPayment = function(){
+  let total = document.getElementById("grandTotal").innerText;
 
-  window.open(`upi://pay?pa=${upiId}&pn=RewaStore&am=${total}&cu=INR`);
+  if(total == 0){
+    alert("Cart empty hai");
+    return;
+  }
+
+  window.location.href = "payment.html?amount=" + total;
 }
 
-window.paymentDone = function(){
-  alert("Payment done! Now click Place Order.");
-}
-
+// WhatsApp order
 window.placeOrder = function(){
-  if(cart.length===0) return alert("Cart empty hai");
+  if(cart.length===0){
+    alert("Cart empty hai");
+    return;
+  }
 
   let address=document.getElementById("address").value;
 
@@ -187,11 +188,15 @@ window.placeOrder = function(){
 
   let total=document.getElementById("grandTotal").innerText;
 
-  let msg=`Order: ${items}\nTotal: ₹${total}\nPayment: UPI\nAddress: ${address}`;
+  let msg=`🛒 New Order
+
+Items: ${items}
+Total: ₹${total}
+Payment: UPI Done
+
+Address: ${address}`;
 
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-
-  alert("Order sent!");
 }
 
 };
