@@ -4,27 +4,45 @@
   <title>Rewa Grocery Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; margin:0; background:#f5f5f5; }
-    header { background:#2ecc71; color:white; padding:15px; text-align:center; font-size:24px; }
-    .container { padding:15px; }
-    .card { background:white; padding:10px; margin:10px 0; border-radius:8px; }
-    input, button { padding:10px; margin:5px; width:90%; }
-    button { background:#25D366; color:white; border:none; }
-    .checkout { background:#fff; padding:15px; margin-top:20px; border-radius:10px; }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    header { background: #2ecc71; color: white; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; }
+    .sub { text-align: center; margin: 10px; color: #555; }
+    .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; }
+    .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+    .price { color: #2ecc71; font-size: 18px; font-weight: bold; }
+    button { margin-top: 8px; padding: 10px; width: 100%; background: #25D366; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .cart-box {
+      position: fixed;
+      right: 10px;
+      top: 70px;
+      width: 250px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .cart-item { font-size: 14px; margin: 5px 0; display:flex; justify-content:space-between; }
+    .remove { color:red; cursor:pointer; }
+    .checkout { margin-top:10px; }
+    input { width:100%; padding:8px; margin-top:5px; }
   </style>
 </head>
+
 <body>
 
 <header>🛒 Rewa Grocery Store</header>
+<p class="sub">Free Home Delivery in Rewa 🚚</p>
 
 <div class="container" id="products"></div>
 
-<div class="checkout">
-  <h3>🧾 Checkout</h3>
-  <p>Total: ₹<span id="total">0</span></p>
-  <input type="text" id="address" placeholder="Enter your address">
+<div class="cart-box">
+  <h3>🛒 Cart</h3>
+  <div id="cartItems"></div>
+  <p><b>Total: ₹<span id="total">0</span></b></p>
+  <input type="text" id="address" placeholder="Enter address">
   <button onclick="placeOrder()">Order on WhatsApp</button>
-  <button onclick="payUPI()">Pay via UPI</button>
 </div>
 
 <script>
@@ -32,49 +50,66 @@ const whatsappNumber = "918109788338";
 let cart = [];
 
 const products = [
-  { name: "Rice (1kg)", price: 70, img: "https://via.placeholder.com/150" },
-  { name: "Wheat Flour (1kg)", price: 45, img: "https://via.placeholder.com/150" },
-  { name: "Milk (1L)", price: 75, img: "https://via.placeholder.com/150" },
-  { name: "Sugar (1kg)", price: 50, img: "https://via.placeholder.com/150" },
-  { name: "Oil (1L)", price: 200, img: "https://via.placeholder.com/150" },
-  { name: "Potato (1Kg)", price: 30, img: "https://via.placeholder.com/150" },
-  { name: "Tomato (1Kg)", price: 25, img: "https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" }
+  { name: "Rice (1kg)", price: 70 },
+  { name: "Wheat Flour (1kg)", price: 45 },
+  { name: "Milk (1L)", price: 75 },
+  { name: "Sugar (1kg)", price: 50 },
+  { name: "Oil (1L)", price: 200 },
+  { name: "Potato (1Kg)", price: 30 },
+  { name: "Tomato (1Kg)", price: 25 }
 ];
 
 const container = document.getElementById("products");
 
-products.forEach(p => {
-  const div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = `
-    <h3>${p.name}</h3>
-    <p>₹${p.price}</p>
-    <button onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
-  `;
-  container.appendChild(div);
-});
-
-function addToCart(name, price) {
-  cart.push({name, price});
-  updateTotal();
+function renderProducts() {
+  products.forEach((p, index) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <h3>${p.name}</h3>
+      <p class="price">₹${p.price}</p>
+      <button onclick="addToCart(${index})">Add to Cart</button>
+    `;
+    container.appendChild(div);
+  });
 }
 
-function updateTotal() {
-  let total = cart.reduce((sum, item) => sum + item.price, 0);
+function addToCart(index) {
+  cart.push(products[index]);
+  updateCart();
+}
+
+function removeItem(i) {
+  cart.splice(i,1);
+  updateCart();
+}
+
+function updateCart() {
+  const cartDiv = document.getElementById("cartItems");
+  cartDiv.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item, i) => {
+    total += item.price;
+    const div = document.createElement("div");
+    div.className = "cart-item";
+    div.innerHTML = `${item.name} <span class='remove' onclick='removeItem(${i})'>❌</span>`;
+    cartDiv.appendChild(div);
+  });
+
   document.getElementById("total").innerText = total;
 }
 
 function placeOrder() {
   const address = document.getElementById("address").value;
+  if(cart.length === 0) return alert("Cart empty hai");
   let items = cart.map(i => i.name).join(", ");
   let total = document.getElementById("total").innerText;
   const msg = `Order: ${items}\nTotal: ₹${total}\nAddress: ${address}`;
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
 }
 
-function payUPI() {
-  window.open("upi://pay?pa=8109788338@ybl&pn=RewaStore&cu=INR");
-}
+renderProducts();
 </script>
 
 </body>
