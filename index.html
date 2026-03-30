@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rewa Grocery Store</title>
+</head>
+<body style="font-family: Arial; text-align:center; background:#f3f3f3;">
+
+<h1>🛒 Rewa Grocery Store</h1>
+<p>Free Home Delivery in Rewa 🚚</p>
+
+<div id="products"></div>
+
+<script>
+const whatsappNumber = "91XXXXXXXXXX";
+
+const products = [
+  { name: "Rice (5kg)", price: 350 },
+  { name: "Wheat Flour (10kg)", price: 450 },
+  { name: "Milk (1L)", price: 60 },
+  { name: "Sugar (1kg)", price: 45 },
+  { name: "Cooking Oil (1L)", price: 150 }
+];
+
+const container = document.getElementById("products");
+
+products.forEach(p => {
+  const div = document.createElement("div");
+  div.style.margin = "20px";
+  div.innerHTML = `
+    <h3>${p.name}</h3>
+    <p>₹${p.price}</p>
+    <button onclick="order('${p.name}', ${p.price})">Order on WhatsApp</button>
+  `;
+  container.appendChild(div);
+});
+
+function order(name, price) {
+  const msg = `Namaste, mujhe ${name} (₹${price}) order karna hai.`;
+  window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
+}
+</script>
+
+</body>
+</html>
