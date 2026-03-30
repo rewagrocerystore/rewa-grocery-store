@@ -12,9 +12,20 @@
     button { padding:8px; margin:3px; border:none; border-radius:5px; cursor:pointer; }
     .add { background:#25D366; color:white; }
     .qty { display:flex; justify-content:center; align-items:center; gap:5px; }
-    .cart-box { position:fixed; right:10px; bottom:10px; width:270px; background:white; padding:10px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+
+    .cart-box {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      width: 270px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
     .cart-item { display:flex; justify-content:space-between; font-size:14px; }
-    input { width:100%; padding:8px; margin-top:5px; }
+    input, select { width:100%; padding:8px; margin-top:5px; }
   </style>
 </head>
 <body>
@@ -37,22 +48,28 @@
     <option value="UPI">UPI Payment</option>
   </select>
 
-  <button onclick="placeOrder()" class="add">Place Order</button>
+  <button class="add" onclick="placeOrder()">Place Order</button>
 </div>
 
 <script>
 const whatsappNumber = "918109788338";
-const upiId = "8109788338@paytm";
+const upiId = "8109788338@paytm"; // apni UPI ID daalna
+
 let cart = [];
 
 const products = [
   { name:"Rice (1kg)", price:70 },
   { name:"Flour (1kg)", price:45 },
-  { name:"Milk (1L)", price:75 }
+  { name:"Milk (1L)", price:75 },
+  { name:"Sugar (1kg)", price:50 },
+  { name:"Oil (1L)", price:200 },
+  { name:"Potato (1kg)", price:30 },
+  { name:"Tomato (1kg)", price:25 }
 ];
 
 const container = document.getElementById("products");
 
+// Render products
 products.forEach((p,i)=>{
   const div=document.createElement("div");
   div.className="card";
@@ -68,26 +85,42 @@ products.forEach((p,i)=>{
   container.appendChild(div);
 });
 
+// Change quantity
 function changeQty(i,delta){
   let item = cart.find(x=>x.index===i);
+
   if(!item && delta>0){
     cart.push({index:i, qty:1});
-  } else if(item){
+  } 
+  else if(item){
     item.qty += delta;
-    if(item.qty<=0) cart = cart.filter(x=>x.index!==i);
+    if(item.qty<=0){
+      cart = cart.filter(x=>x.index!==i);
+    }
   }
+
   updateCart();
 }
 
+// Update cart
 function updateCart(){
   const cartDiv=document.getElementById("cartItems");
   cartDiv.innerHTML="";
   let total=0;
 
+  // Reset all qty display
+  products.forEach((_,i)=>{
+    document.getElementById("qty"+i).innerText=0;
+  });
+
   cart.forEach(c=>{
     let p=products[c.index];
     total += p.price*c.qty;
-    document.getElementById("qty"+c.index).innerText=c.qty;
+
+    let qtyEl = document.getElementById("qty"+c.index);
+    if(qtyEl){
+      qtyEl.innerText=c.qty;
+    }
 
     const div=document.createElement("div");
     div.className="cart-item";
@@ -96,13 +129,19 @@ function updateCart(){
   });
 
   let delivery = total>=500?0:20;
+
   document.getElementById("itemsTotal").innerText=total;
   document.getElementById("delivery").innerText=delivery;
   document.getElementById("grandTotal").innerText=total+delivery;
 }
 
+// Place order
 function placeOrder(){
-  if(cart.length===0) return alert("Cart empty hai");
+  if(cart.length===0){
+    alert("Cart empty hai");
+    return;
+  }
+
   const address=document.getElementById("address").value;
   const payment=document.getElementById("payment").value;
 
@@ -114,7 +153,7 @@ function placeOrder(){
   let total=document.getElementById("grandTotal").innerText;
 
   if(payment==="UPI"){
-    window.open(`upi://pay?pa=${810978833@ybl}&pn=RewaStore&am=${total}&cu=INR`);
+    window.open(`upi://pay?pa=${8109788338@ybl}&pn=RewaStore&am=${total}&cu=INR`);
   }
 
   const msg=`Order: ${items}\nTotal: ₹${total}\nPayment: ${payment}\nAddress: ${address}`;
