@@ -17,6 +17,15 @@
       font-weight:bold;
     }
 
+    .title {
+  font-size:22px;
+  font-weight:bold;
+}
+
+.tagline {
+  font-size:14px;
+  margin-top:5px;
+}
     .search-box {
       position:absolute;
       right:15px;
@@ -92,7 +101,13 @@ justify-content:center;
 <body>
 
 <header>
-  🛒 Rewa Grocery Store
+  <div class="title">🛒 Rewa Grocery Store</div>
+
+  <div class="tagline">
+    🛍️ Fresh Groceries at Your Doorstep <br>
+    🚚 Order above ₹500 & get FREE Delivery
+  </div>
+
   <input type="text" class="search-box" placeholder="Search..." onkeyup="searchProduct(this.value)">
 </header>
 
