@@ -106,7 +106,9 @@ justify-content:center;
   <p>Delivery: ₹<span id="delivery">30</span></p>
   <p><b>Total: ₹<span id="grandTotal">0</span></b></p>
 
-  <input type="text" id="address" placeholder="Enter address">
+  <input type="text" id="name" placeholder="Enter your name">
+<input type="tel" id="mobile" placeholder="Enter mobile number">
+<input type="text" id="address" placeholder="Enter address">
 
   <button class="pay" onclick="goToPayment()">Pay via UPI</button>
   <button class="add" onclick="placeOrder()">Place Order via WhatsApp</button>
@@ -221,7 +223,9 @@ window.goToPayment = function(){
 window.placeOrder = function(){
   if(cart.length===0) return alert("Cart empty hai");
 
-  let address=document.getElementById("address").value;
+  let name = document.getElementById("name").value;
+let mobile = document.getElementById("mobile").value;
+let address = document.getElementById("address").value;
 
   let items = cart.map(c=>{
     let p=products[c.index];
@@ -232,12 +236,14 @@ window.placeOrder = function(){
 
   let msg=`🛒 New Order
 
+Name: ${name}
+Mobile: ${mobile}
+
 Items: ${items}
 Total: ₹${total}
 Payment: UPI Done
 
 Address: ${address}`;
-
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
 }
 
