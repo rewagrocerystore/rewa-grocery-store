@@ -88,7 +88,7 @@
 window.onload = function() {
 
 const whatsappNumber = "918109788338";
-const upiId = "8109788338@ybl";
+const upiId = "8109788338@paytm";
 
 let cart = [];
 
@@ -179,7 +179,7 @@ window.placeOrder = function(){
   let total=document.getElementById("grandTotal").innerText;
 
   if(payment==="UPI"){
-    window.open(`upi://pay?pa=${8109788338@ybl}&pn=RewaStore&am=${total}&cu=INR`);
+    window.open(`upi://pay?pa=${upiId}&pn=RewaStore&am=${total}&cu=INR`);
   }
 
   const msg=`Order: ${items}\nTotal: ₹${total}\nPayment: ${payment}\nAddress: ${address}`;
