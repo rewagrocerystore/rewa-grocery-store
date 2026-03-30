@@ -27,18 +27,19 @@
 
     button {
       padding:8px;
-      margin:3px;
+      margin:5px;
       border:none;
       border-radius:5px;
       cursor:pointer;
     }
 
     .add { background:#25D366; color:white; }
+    .pay { background:#6c5ce7; color:white; }
+    .done { background:#0984e3; color:white; }
 
     .qty {
       display:flex;
       justify-content:center;
-      align-items:center;
       gap:5px;
     }
 
@@ -46,7 +47,7 @@
       position: fixed;
       right: 10px;
       bottom: 10px;
-      width: 270px;
+      width: 280px;
       background: white;
       padding: 10px;
       border-radius: 10px;
@@ -57,6 +58,12 @@
       width:100%;
       padding:8px;
       margin-top:5px;
+    }
+
+    .qr {
+      width:150px;
+      display:block;
+      margin:auto;
     }
   </style>
 </head>
@@ -70,9 +77,10 @@
 <div class="cart-box">
   <h3>🛒 Cart</h3>
   <div id="cartItems"></div>
-  <p>Items Total: ₹<span id="itemsTotal">0</span></p>
+
+  <p>Items: ₹<span id="itemsTotal">0</span></p>
   <p>Delivery: ₹<span id="delivery">20</span></p>
-  <p><b>Grand Total: ₹<span id="grandTotal">0</span></b></p>
+  <p><b>Total: ₹<span id="grandTotal">0</span></b></p>
 
   <input type="text" id="address" placeholder="Enter address">
 
@@ -81,6 +89,11 @@
     <option value="UPI">UPI Payment</option>
   </select>
 
+  <!-- QR CODE -->
+  <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8109788338@ybl" />
+
+  <button class="pay" onclick="payUPI()">Pay via UPI</button>
+  <button class="done" onclick="paymentDone()">Payment Done</button>
   <button class="add" onclick="placeOrder()">Place Order</button>
 </div>
 
@@ -88,7 +101,7 @@
 window.onload = function() {
 
 const whatsappNumber = "918109788338";
-const upiId = "8109788338@ybl"; // ✅ tera UPI add
+const upiId = "8109788338@ybl";
 
 let cart = [];
 
@@ -96,10 +109,7 @@ const products = [
   { name:"Rice (1kg)", price:70 },
   { name:"Flour (1kg)", price:45 },
   { name:"Milk (1L)", price:75 },
-  { name:"Sugar (1kg)", price:50 },
-  { name:"Oil (1L)", price:200 },
-  { name:"Potato (1kg)", price:30 },
-  { name:"Tomato (1kg)", price:25 }
+  { name:"Sugar (1kg)", price:50 }
 ];
 
 const container = document.getElementById("products");
@@ -124,21 +134,18 @@ window.changeQty = function(i,delta){
 
   if(!item && delta>0){
     cart.push({index:i, qty:1});
-  } 
-  else if(item){
+  } else if(item){
     item.qty += delta;
     if(item.qty<=0){
       cart = cart.filter(x=>x.index!==i);
     }
   }
-
   updateCart();
 }
 
 function updateCart(){
-  const cartDiv=document.getElementById("cartItems");
-  cartDiv.innerHTML="";
   let total=0;
+  document.getElementById("cartItems").innerHTML="";
 
   products.forEach((_,i)=>{
     document.getElementById("qty"+i).innerText=0;
@@ -150,9 +157,9 @@ function updateCart(){
 
     document.getElementById("qty"+c.index).innerText=c.qty;
 
-    const div=document.createElement("div");
+    let div=document.createElement("div");
     div.innerHTML=`${p.name} x${c.qty}`;
-    cartDiv.appendChild(div);
+    document.getElementById("cartItems").appendChild(div);
   });
 
   let delivery = total>=500?0:20;
@@ -162,14 +169,22 @@ function updateCart(){
   document.getElementById("grandTotal").innerText=total+delivery;
 }
 
-window.placeOrder = function(){
-  if(cart.length===0){
-    alert("Cart empty hai");
-    return;
-  }
+window.payUPI = function(){
+  let total=document.getElementById("grandTotal").innerText;
+  if(total==0) return alert("Cart empty hai");
 
-  const address=document.getElementById("address").value;
-  const payment=document.getElementById("payment").value;
+  window.open(`upi://pay?pa=${upiId}&pn=RewaStore&am=${total}&cu=INR`);
+}
+
+window.paymentDone = function(){
+  alert("Payment received! Now place order.");
+}
+
+window.placeOrder = function(){
+  if(cart.length===0) return alert("Cart empty hai");
+
+  let address=document.getElementById("address").value;
+  let payment=document.getElementById("payment").value;
 
   let items = cart.map(c=>{
     let p=products[c.index];
@@ -178,14 +193,11 @@ window.placeOrder = function(){
 
   let total=document.getElementById("grandTotal").innerText;
 
-  if(payment==="UPI"){
-    window.open(`upi://pay?pa=${upiId}&pn=RewaStore&am=${total}&cu=INR`);
-  }
+  let msg=`Order: ${items}\nTotal: ₹${total}\nPayment: ${payment}\nAddress: ${address}`;
 
-  const msg=`Order: ${items}\nTotal: ₹${total}\nPayment: ${payment}\nAddress: ${address}`;
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
 
-  alert("Order placed successfully!");
+  alert("Order sent on WhatsApp!");
 }
 
 };
