@@ -11,13 +11,17 @@
       background:#2ecc71;
       color:white;
       padding:15px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:20px;
+      position:relative;
+      text-align:center;
+      font-size:22px;
+      font-weight:bold;
     }
 
     .search-box {
+      position:absolute;
+      right:15px;
+      top:50%;
+      transform:translateY(-50%);
       padding:6px;
       border:none;
       border-radius:5px;
@@ -115,25 +119,18 @@ const whatsappNumber = "918109788338";
 let cart = [];
 
 const products = [
-  { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg?im=FaceCrop,algorithm=dnn,width=1200,height=886" },
-  { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
-  { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
-  { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
-  { name:"Refined Oil (1L)", price:200, img:"https://thumbs.dreamstime.com/b/sunflower-oil-factory-line-production-filling-refined-seeds-conveyor-food-industry-116766070.jpg" },
-  { name:"Potato (1kg)", price:30, img:"https://www.kew.org/sites/default/files/styles/plant_image_953w/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=vTBE-XTL" },
-  { name:"Tomato (1kg)", price:25, img:"https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" }
-  { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg?im=FaceCrop,algorithm=dnn,width=1200,height=886" },
-  { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
-  { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
-  { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
-  { name:"Refined Oil (1L)", price:200, img:"https://thumbs.dreamstime.com/b/sunflower-oil-factory-line-production-filling-refined-seeds-conveyor-food-industry-116766070.jpg" },
-  { name:"Potato (1kg)", price:30, img:"https://www.kew.org/sites/default/files/styles/plant_image_953w/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=vTBE-XTL" },
-  { name:"Tomato (1kg)", price:25, img:"https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" }
+  { name:"Rice (1kg)", price:70, img:"https://i.imgur.com/5KXb8Qv.jpg" },
+  { name:"Flour (1kg)", price:45, img:"https://i.imgur.com/VKQFQ0C.jpg" },
+  { name:"Milk (1L)", price:75, img:"https://i.imgur.com/3ZQ3Z7C.jpg" },
+  { name:"Sugar (1kg)", price:50, img:"https://i.imgur.com/d7qP8zE.jpg" },
+  { name:"Oil (1L)", price:200, img:"https://i.imgur.com/9QF8YbT.jpg" },
+  { name:"Potato (1kg)", price:30, img:"https://i.imgur.com/G7h5F5K.jpg" },
+  { name:"Tomato (1kg)", price:25, img:"https://i.imgur.com/Yy4Z8pA.jpg" }
 ];
 
 const container = document.getElementById("products");
 
-// Render function (IMPORTANT for search)
+// render products
 function renderProducts(list){
   container.innerHTML = "";
 
@@ -154,7 +151,7 @@ function renderProducts(list){
   });
 }
 
-// Search function
+// search
 window.searchProduct = function(text){
   let filtered = products.filter(p =>
     p.name.toLowerCase().includes(text.toLowerCase())
@@ -162,10 +159,10 @@ window.searchProduct = function(text){
   renderProducts(filtered);
 }
 
-// Initial render
+// initial load
 renderProducts(products);
 
-// बाकी functions same
+// qty
 window.changeQty = function(i,delta){
   let item = cart.find(x=>x.index===i);
 
@@ -182,6 +179,7 @@ window.changeQty = function(i,delta){
   updateCart();
 }
 
+// cart update
 function updateCart(){
   let total=0;
   document.getElementById("cartItems").innerHTML="";
@@ -210,6 +208,7 @@ function updateCart(){
   document.getElementById("grandTotal").innerText=total+delivery;
 }
 
+// payment page
 window.goToPayment = function(){
   let total = document.getElementById("grandTotal").innerText;
   if(total == 0) return alert("Cart empty hai");
@@ -217,6 +216,7 @@ window.goToPayment = function(){
   window.location.href = "payment.html?amount=" + total;
 }
 
+// whatsapp order
 window.placeOrder = function(){
   if(cart.length===0) return alert("Cart empty hai");
 
