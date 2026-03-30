@@ -23,6 +23,13 @@
       box-shadow:0 4px 10px rgba(0,0,0,0.1);
     }
 
+    .card img {
+      width:100%;
+      height:120px;
+      object-fit:cover;
+      border-radius:8px;
+    }
+
     .price { color:#2ecc71; font-weight:bold; }
 
     button {
@@ -89,13 +96,13 @@ const whatsappNumber = "918109788338";
 let cart = [];
 
 const products = [
-  { name:"Rice (1kg)", price:70 },
-  { name:"Flour (1kg)", price:45 },
-  { name:"Milk (1L)", price:75 },
-  { name:"Sugar (1kg)", price:50 },
-  { name:"Oil (1L)", price:200 },
-  { name:"Potato (1kg)", price:30 },
-  { name:"Tomato (1kg)", price:25, img: "https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" }
+  { name:"Rice (1kg)", price:70, img:"https://i.imgur.com/5KXb8Qv.jpg" },
+  { name:"Flour (1kg)", price:45, img:"https://i.imgur.com/VKQFQ0C.jpg" },
+  { name:"Milk (1L)", price:75, img:"https://i.imgur.com/3ZQ3Z7C.jpg" },
+  { name:"Sugar (1kg)", price:50, img:"https://i.imgur.com/d7qP8zE.jpg" },
+  { name:"Oil (1L)", price:200, img:"https://i.imgur.com/9QF8YbT.jpg" },
+  { name:"Potato (1kg)", price:30, img:"https://i.imgur.com/G7h5F5K.jpg" },
+  { name:"Tomato (1kg)", price:25, img:"https://i.imgur.com/Yy4Z8pA.jpg" }
 ];
 
 const container = document.getElementById("products");
@@ -105,6 +112,7 @@ products.forEach((p,i)=>{
   const div=document.createElement("div");
   div.className="card";
   div.innerHTML=`
+    <img src="${p.img}">
     <h3>${p.name}</h3>
     <p class='price'>₹${p.price}</p>
     <div class='qty'>
@@ -116,7 +124,8 @@ products.forEach((p,i)=>{
   container.appendChild(div);
 });
 
-// Quantity change
+// बाकी code same (changeQty, updateCart, payment, WhatsApp)
+
 window.changeQty = function(i,delta){
   let item = cart.find(x=>x.index===i);
 
@@ -133,7 +142,6 @@ window.changeQty = function(i,delta){
   updateCart();
 }
 
-// Update cart
 function updateCart(){
   let total=0;
   document.getElementById("cartItems").innerHTML="";
@@ -160,7 +168,6 @@ function updateCart(){
   document.getElementById("grandTotal").innerText=total+delivery;
 }
 
-// Go to payment page
 window.goToPayment = function(){
   let total = document.getElementById("grandTotal").innerText;
 
@@ -172,7 +179,6 @@ window.goToPayment = function(){
   window.location.href = "payment.html?amount=" + total;
 }
 
-// WhatsApp order
 window.placeOrder = function(){
   if(cart.length===0){
     alert("Cart empty hai");
