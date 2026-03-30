@@ -3,15 +3,44 @@
 <head>
   <title>Rewa Grocery Store</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body { font-family: Arial; margin:0; background:#f5f5f5; }
     header { background:#2ecc71; color:white; padding:15px; text-align:center; font-size:24px; }
-    .container { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; padding:20px; }
-    .card { background:white; padding:15px; border-radius:10px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+
+    .container {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:15px;
+      padding:20px;
+    }
+
+    .card {
+      background:white;
+      padding:15px;
+      border-radius:10px;
+      text-align:center;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    }
+
     .price { color:#2ecc71; font-weight:bold; }
-    button { padding:8px; margin:3px; border:none; border-radius:5px; cursor:pointer; }
+
+    button {
+      padding:8px;
+      margin:3px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+    }
+
     .add { background:#25D366; color:white; }
-    .qty { display:flex; justify-content:center; align-items:center; gap:5px; }
+
+    .qty {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:5px;
+    }
 
     .cart-box {
       position: fixed;
@@ -24,10 +53,20 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    .cart-item { display:flex; justify-content:space-between; font-size:14px; }
-    input, select { width:100%; padding:8px; margin-top:5px; }
+    .cart-item {
+      display:flex;
+      justify-content:space-between;
+      font-size:14px;
+    }
+
+    input, select {
+      width:100%;
+      padding:8px;
+      margin-top:5px;
+    }
   </style>
 </head>
+
 <body>
 
 <header>🛒 Rewa Grocery Store</header>
@@ -51,9 +90,11 @@
   <button class="add" onclick="placeOrder()">Place Order</button>
 </div>
 
+<!-- ✅ IMPORTANT: defer added -->
 <script defer>
+
 const whatsappNumber = "918109788338";
-const upiId = "8109788338@paytm"; // apni UPI ID daalna
+const upiId = "8109788338@ybl";
 
 let cart = [];
 
@@ -108,7 +149,6 @@ function updateCart(){
   cartDiv.innerHTML="";
   let total=0;
 
-  // Reset all qty display
   products.forEach((_,i)=>{
     document.getElementById("qty"+i).innerText=0;
   });
@@ -161,6 +201,7 @@ function placeOrder(){
 
   alert("Order placed successfully!");
 }
+
 </script>
 
 </body>
