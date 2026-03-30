@@ -54,7 +54,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
-    input, select {
+    input {
       width:100%;
       padding:8px;
       margin-top:5px;
@@ -84,12 +84,7 @@
 
   <input type="text" id="address" placeholder="Enter address">
 
-  <select id="payment">
-    <option value="COD">Cash on Delivery</option>
-    <option value="UPI">UPI Payment</option>
-  </select>
-
-  <!-- QR CODE -->
+  <!-- QR -->
   <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=8109788338@ybl" />
 
   <button class="pay" onclick="payUPI()">Pay via UPI</button>
@@ -177,14 +172,13 @@ window.payUPI = function(){
 }
 
 window.paymentDone = function(){
-  alert("Payment received! Now place order.");
+  alert("Payment done! Now click Place Order.");
 }
 
 window.placeOrder = function(){
   if(cart.length===0) return alert("Cart empty hai");
 
   let address=document.getElementById("address").value;
-  let payment=document.getElementById("payment").value;
 
   let items = cart.map(c=>{
     let p=products[c.index];
@@ -193,11 +187,11 @@ window.placeOrder = function(){
 
   let total=document.getElementById("grandTotal").innerText;
 
-  let msg=`Order: ${items}\nTotal: ₹${total}\nPayment: ${payment}\nAddress: ${address}`;
+  let msg=`Order: ${items}\nTotal: ₹${total}\nPayment: UPI\nAddress: ${address}`;
 
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
 
-  alert("Order sent on WhatsApp!");
+  alert("Order sent!");
 }
 
 };
