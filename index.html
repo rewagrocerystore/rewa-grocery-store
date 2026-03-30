@@ -11,22 +11,26 @@
     .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
     .price { color: #2ecc71; font-size: 18px; font-weight: bold; }
     button { margin-top: 8px; padding: 10px; width: 100%; background: #25D366; color: white; border: none; border-radius: 5px; cursor: pointer; }
+
+    /* Cart bottom right */
     .cart-box {
       position: fixed;
       right: 10px;
-      top: 70px;
-      width: 250px;
+      bottom: 10px;
+      width: 260px;
       background: white;
       padding: 10px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      max-height: 400px;
+      max-height: 350px;
       overflow-y: auto;
     }
+
     .cart-item { font-size: 14px; margin: 5px 0; display:flex; justify-content:space-between; }
     .remove { color:red; cursor:pointer; }
-    .checkout { margin-top:10px; }
     input { width:100%; padding:8px; margin-top:5px; }
+
+    .upi-btn { background:#6c5ce7; }
   </style>
 </head>
 
@@ -43,10 +47,12 @@
   <p><b>Total: ₹<span id="total">0</span></b></p>
   <input type="text" id="address" placeholder="Enter address">
   <button onclick="placeOrder()">Order on WhatsApp</button>
+  <button class="upi-btn" onclick="payUPI()">Pay via UPI</button>
 </div>
 
 <script>
 const whatsappNumber = "918109788338";
+const upiId = "yourupi@upi"; // yaha apni UPI ID daalo
 let cart = [];
 
 const products = [
@@ -107,6 +113,12 @@ function placeOrder() {
   let total = document.getElementById("total").innerText;
   const msg = `Order: ${items}\nTotal: ₹${total}\nAddress: ${address}`;
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
+}
+
+function payUPI() {
+  let total = document.getElementById("total").innerText;
+  if(total == 0) return alert("Cart empty hai");
+  window.open(`upi://pay?pa=${8109788338@ybl}&pn=RewaStore&am=${total}&cu=INR`);
 }
 
 renderProducts();
