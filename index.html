@@ -17,15 +17,9 @@
       font-weight:bold;
     }
 
-    .title {
-  font-size:22px;
-  font-weight:bold;
-}
+    .title { font-size:22px; font-weight:bold; }
+    .tagline { font-size:14px; margin-top:5px; }
 
-.tagline {
-  font-size:14px;
-  margin-top:5px;
-}
     .search-box {
       position:absolute;
       right:15px;
@@ -40,7 +34,7 @@
     .container {
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(200px,200px));
-justify-content:center;
+      justify-content:center;
       gap:15px;
       padding:20px;
     }
@@ -53,25 +47,6 @@ justify-content:center;
       box-shadow:0 4px 10px rgba(0,0,0,0.1);
     }
 
-    /* Slide-out cart CSS */
-.cart-box {
-  position: fixed;
-  top: 60px; /* search ke neeche */
-  right: 0;
-  width: 280px;
-  height: calc(100% - 60px); /* header ke neeche poora height cover */
-  background: white;
-  padding: 10px;
-  border-radius: 10px 0 0 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transform: translateX(100%); /* initially hidden */
-  transition: transform 0.3s ease-in-out;
-  z-index: 50; /* overlay ke upar */
-}
-.cart-box.open {
-  transform: translateX(0);
-}
-    
     .card img {
       width:100%;
       height:120px;
@@ -92,28 +67,74 @@ justify-content:center;
     .add { background:#25D366; color:white; }
     .pay { background:#6c5ce7; color:white; }
 
-    .qty {
-      display:flex;
-      justify-content:center;
-      gap:5px;
-    }
+    .qty { display:flex; justify-content:center; gap:5px; }
 
+    input { width:100%; padding:8px; margin-top:5px; }
+
+    /* Slide-out Cart CSS */
     .cart-box {
       position: fixed;
-      right: 10px;
-      bottom: 10px;
+      top: 60px;
+      right: 0;
       width: 280px;
+      height: calc(100% - 60px);
       background: white;
       padding: 10px;
-      border-radius: 10px;
+      border-radius: 10px 0 0 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 50;
+      overflow-y: auto;
+    }
+    .cart-box.open { transform: translateX(0); }
+
+    /* Overlay */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 40;
     }
 
-    input {
-      width:100%;
-      padding:8px;
-      margin-top:5px;
+    /* Floating Cart Icon */
+    #floatingCart {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background:#25D366;
+      color:white;
+      border:none;
+      border-radius:50%;
+      width:50px;
+      height:50px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:24px;
+      cursor:pointer;
+      z-index:55;
+      box-shadow:0 4px 10px rgba(0,0,0,0.2);
     }
+
+    /* Badge */
+    #cartBadge {
+      position:absolute;
+      top:-5px;
+      right:-5px;
+      background:red;
+      color:white;
+      width:18px;
+      height:18px;
+      font-size:12px;
+      border-radius:50%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-weight:bold;
+    }
+
   </style>
 </head>
 
@@ -121,7 +142,6 @@ justify-content:center;
 
 <header>
   <div class="title">🛒 Rewa Grocery Store</div>
-
   <div class="tagline">
     🛍️ Fresh Groceries at Your Doorstep <br>
     🚚 Order above ₹500 & get FREE Delivery
@@ -132,9 +152,10 @@ justify-content:center;
 
 <div class="container" id="products"></div>
 
-  <!-- Overlay for slide-out cart -->
-<div id="overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:40;"></div>
+<!-- Overlay -->
+<div id="overlay"></div>
 
+<!-- Slide-out Cart -->
 <div class="cart-box">
   <h3>🛒 Cart</h3>
   <div id="cartItems"></div>
@@ -144,139 +165,118 @@ justify-content:center;
   <p><b>Total: ₹<span id="grandTotal">0</span></b></p>
 
   <input type="text" id="name" placeholder="Enter your name">
-<input type="tel" id="mobile" placeholder="Enter mobile number">
-<input type="text" id="address" placeholder="Enter address">
+  <input type="tel" id="mobile" placeholder="Enter mobile number">
+  <input type="text" id="address" placeholder="Enter address">
 
   <button class="pay" onclick="goToPayment()">Pay via UPI</button>
   <button class="add" onclick="placeOrder()">Place Order via WhatsApp</button>
 </div>
 
+<!-- Floating Cart Icon -->
+<div id="floatingCart" onclick="openCart()">🛒
+  <div id="cartBadge">0</div>
+</div>
+
 <script>
 window.onload = function() {
 
-const whatsappNumber = "918109788338";
+  const whatsappNumber = "918109788338";
+  let cart = [];
 
-let cart = [];
+  const products = [
+    { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
+    { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
+    { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
+    { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
+    { name:"Refined Oil (1L)", price:200, img:"https://thumbs.dreamstime.com/b/sunflower-oil-factory-line-production-filling-refined-seeds-conveyor-food-industry-116766070.jpg" },
+    { name:"Potato (1kg)", price:30, img:"https://www.kew.org/sites/default/files/styles/plant_image_953w/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=vTBE-XTL" },
+    { name:"Tomato (1kg)", price:25, img:"https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" },
+    { name:"Onion (1kg)", price:25, img:"https://cdn.pixabay.com/photo/2016/06/02/01/35/vegetables-1430062_640.jpg" },
+    { name:"Bottle Gourd (1kg)", price:45, img:"https://www.bbassets.com/media/uploads/p/l/50000468_8-fresho-bottle-gourd-organically-grown.jpg" },
+    { name:"Brinjal (1kg)", price:35, img:"https://www.chefadora.com/_next/image?url=https%3A%2F%2Fchefadora-production.s3.ap-southeast-2.amazonaws.com%2Fmedium_ingredient_brinjal_1ed0af6b11.png&w=3840&q=75" },
+    { name:"Banana (1kg)", price:70, img:"https://m.media-amazon.com/images/I/51ebZJ+DR4L._AC_UF894,1000_QL80_.jpg" },
+    { name:"Apple (1kg)", price:250, img:"https://assets.clevelandclinic.org/transform/cd71f4bd-81d4-45d8-a450-74df78e4477a/Apples-184940975-770x533-1_jpg" }
+  ];
 
-const products = [
-  { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
-  { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
-  { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
-  { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
-  { name:"Refined Oil (1L)", price:200, img:"https://thumbs.dreamstime.com/b/sunflower-oil-factory-line-production-filling-refined-seeds-conveyor-food-industry-116766070.jpg" },
-  { name:"Potato (1kg)", price:30, img:"https://www.kew.org/sites/default/files/styles/plant_image_953w/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=vTBE-XTL" },
-  { name:"Tomato (1kg)", price:25, img:"https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" },
-  { name:"Onion (1kg)", price:25, img:"https://cdn.pixabay.com/photo/2016/06/02/01/35/vegetables-1430062_640.jpg" },
-  { name:"Bottle Gourd (1kg)", price:45, img:"https://www.bbassets.com/media/uploads/p/l/50000468_8-fresho-bottle-gourd-organically-grown.jpg" },
-  { name:"Brinjal (1kg)", price:35, img:"https://www.chefadora.com/_next/image?url=https%3A%2F%2Fchefadora-production.s3.ap-southeast-2.amazonaws.com%2Fmedium_ingredient_brinjal_1ed0af6b11.png&w=3840&q=75" },
-  { name:"Banana (1kg)", price:70, img:"https://m.media-amazon.com/images/I/51ebZJ+DR4L._AC_UF894,1000_QL80_.jpg" },
-  { name:"Apple (1kg)", price:250, img:"https://assets.clevelandclinic.org/transform/cd71f4bd-81d4-45d8-a450-74df78e4477a/Apples-184940975-770x533-1_jpg" }
-];
+  const container = document.getElementById("products");
+  const cartBox = document.querySelector(".cart-box");
+  const overlay = document.getElementById("overlay");
+  const cartBadge = document.getElementById("cartBadge");
 
-const container = document.getElementById("products");
-
-// render products
-function renderProducts(list){
-  container.innerHTML = "";
-
-  list.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`
-      <img src="${p.img}">
-      <h3>${p.name}</h3>
-      <p class='price'>₹${p.price}</p>
-      <div class='qty'>
-        <button onclick='changeQty(${i},-1)'>-</button>
-        <span id='qty${i}'>0</span>
-        <button onclick='changeQty(${i},1)'>+</button>
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// search
-window.searchProduct = function(text){
-  let filtered = products.filter(p =>
-    p.name.toLowerCase().includes(text.toLowerCase())
-  );
-  renderProducts(filtered);
-}
-
-// initial load
-renderProducts(products);
-
-// qty
-window.changeQty = function(i,delta){
-  let item = cart.find(x=>x.index===i);
-
-  if(!item && delta>0){
-    cart.push({index:i, qty:1});
-  } 
-  else if(item){
-    item.qty += delta;
-    if(item.qty<=0){
-      cart = cart.filter(x=>x.index!==i);
-    }
+  // Render products
+  function renderProducts(list){
+    container.innerHTML = "";
+    list.forEach((p,i)=>{
+      const div=document.createElement("div");
+      div.className="card";
+      div.innerHTML=`
+        <img src="${p.img}">
+        <h3>${p.name}</h3>
+        <p class='price'>₹${p.price}</p>
+        <div class='qty'>
+          <button onclick='changeQty(${i},-1)'>-</button>
+          <span id='qty${i}'>0</span>
+          <button onclick='changeQty(${i},1)'>+</button>
+        </div>
+      `;
+      container.appendChild(div);
+    });
   }
 
-  updateCart();
-}
+  // Search
+  window.searchProduct = function(text){
+    let filtered = products.filter(p => p.name.toLowerCase().includes(text.toLowerCase()));
+    renderProducts(filtered);
+  }
 
-// cart update
-function updateCart(){
-  let total=0;
-  document.getElementById("cartItems").innerHTML="";
+  // Initial load
+  renderProducts(products);
 
-  products.forEach((_,i)=>{
-    let el = document.getElementById("qty"+i);
-    if(el) el.innerText=0;
-  });
+  // Quantity change
+  window.changeQty = function(i,delta){
+    let item = cart.find(x=>x.index===i);
+    if(!item && delta>0){ cart.push({index:i, qty:1}); } 
+    else if(item){ item.qty += delta; if(item.qty<=0) cart = cart.filter(x=>x.index!==i); }
+    updateCart();
+  }
 
-  cart.forEach(c=>{
-    let p=products[c.index];
-    total += p.price*c.qty;
+  // Update cart
+  function updateCart(){
+    let total=0;
+    let itemCount=0;
+    document.getElementById("cartItems").innerHTML="";
+    products.forEach((_,i)=>{ let el = document.getElementById("qty"+i); if(el) el.innerText=0; });
+    cart.forEach(c=>{
+      let p=products[c.index]; 
+      total += p.price*c.qty;
+      itemCount += c.qty;
+      let el = document.getElementById("qty"+c.index); if(el) el.innerText=c.qty;
+      let div=document.createElement("div"); div.innerHTML=`${p.name} x${c.qty}`; document.getElementById("cartItems").appendChild(div);
+    });
+    let delivery = total>=500?0:30;
+    document.getElementById("itemsTotal").innerText=total;
+    document.getElementById("delivery").innerText=delivery;
+    document.getElementById("grandTotal").innerText=total+delivery;
+    // Update badge
+    cartBadge.innerText = itemCount;
+  }
 
-    let el = document.getElementById("qty"+c.index);
-    if(el) el.innerText=c.qty;
+  // Payment page
+  window.goToPayment = function(){
+    let total = document.getElementById("grandTotal").innerText;
+    if(total == 0) return alert("Cart empty hai");
+    window.location.href = "payment.html?amount=" + total;
+  }
 
-    let div=document.createElement("div");
-    div.innerHTML=`${p.name} x${c.qty}`;
-    document.getElementById("cartItems").appendChild(div);
-  });
-
-  let delivery = total>=500?0:30;
-
-  document.getElementById("itemsTotal").innerText=total;
-  document.getElementById("delivery").innerText=delivery;
-  document.getElementById("grandTotal").innerText=total+delivery;
-}
-
-// payment page
-window.goToPayment = function(){
-  let total = document.getElementById("grandTotal").innerText;
-  if(total == 0) return alert("Cart empty hai");
-
-  window.location.href = "payment.html?amount=" + total;
-}
-
-// whatsapp order
-window.placeOrder = function(){
-  if(cart.length===0) return alert("Cart empty hai");
-
-  let name = document.getElementById("name").value;
-let mobile = document.getElementById("mobile").value;
-let address = document.getElementById("address").value;
-
-  let items = cart.map(c=>{
-    let p=products[c.index];
-    return `${p.name} x${c.qty}`;
-  }).join(", ");
-
-  let total=document.getElementById("grandTotal").innerText;
-
-  let msg=`🛒 New Order
+  // WhatsApp order
+  window.placeOrder = function(){
+    if(cart.length===0) return alert("Cart empty hai");
+    let name = document.getElementById("name").value;
+    let mobile = document.getElementById("mobile").value;
+    let address = document.getElementById("address").value;
+    let items = cart.map(c=>{ let p=products[c.index]; return `${p.name} x${c.qty}`; }).join(", ");
+    let total=document.getElementById("grandTotal").innerText;
+    let msg=`🛒 New Order
 
 Name: ${name}
 Mobile: ${mobile}
@@ -286,8 +286,13 @@ Total: ₹${total}
 Payment: UPI Done
 
 Address: ${address}`;
-  window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-}
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
+  }
+
+  // Cart open/close
+  window.openCart = function() { cartBox.classList.add("open"); overlay.style.display="block"; }
+  window.closeCart = function() { cartBox.classList.remove("open"); overlay.style.display="none"; }
+  overlay.addEventListener("click", closeCart);
 
 };
 </script>
