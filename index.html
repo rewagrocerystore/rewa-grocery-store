@@ -29,44 +29,6 @@
       border:none;
       border-radius:5px;
       width:150px;
-      z-index: 20;
-    }
-
-    /* Search Suggestions */
-    #searchSuggestions {
-      position: absolute;
-      right: 15px;
-      top: 85%;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius:5px;
-      width:150px;
-      max-height:150px;
-      overflow-y:auto;
-      display:none;
-      z-index: 25;
-    }
-    #searchSuggestions div {
-      padding:5px;
-      cursor:pointer;
-    }
-    #searchSuggestions div:hover { background:#f0f0f0; }
-
-    /* Category Filters */
-    .categories {
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      padding:10px;
-      flex-wrap:wrap;
-    }
-    .categories button {
-      padding:5px 10px;
-      border:none;
-      border-radius:5px;
-      background:#6c5ce7;
-      color:white;
-      cursor:pointer;
     }
 
     .container {
@@ -207,11 +169,8 @@
 <header>
   <div class="title">🛒 Rewa Grocery Store</div>
   <div class="tagline">🛍️ Fresh Groceries at Your Doorstep <br> 🚚 Order above ₹500 & get FREE Delivery</div>
-  <input type="text" class="search-box" placeholder="Search..." onkeyup="searchSuggestion(this.value)">
-  <div id="searchSuggestions"></div>
+  <input type="text" class="search-box" placeholder="Search..." onkeyup="searchProduct(this.value)">
 </header>
-
-<div class="categories" id="categories"></div>
 
 <div class="container" id="products"></div>
 
@@ -242,11 +201,12 @@
 
 <script>
 window.onload = function() {
+
   const whatsappNumber = "918109788338";
   let cart = [];
 
   const products = [
-   { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
+    { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
     { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
     { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
     { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
@@ -265,17 +225,6 @@ window.onload = function() {
   const overlay = document.getElementById("overlay");
   const cartBadge = document.getElementById("cartBadge");
   const floatingCart = document.getElementById("floatingCart");
-  const searchSuggestions = document.getElementById("searchSuggestions");
-  const categoriesDiv = document.getElementById("categories");
-
-  // render category buttons
-  const categorySet = new Set(products.map(p=>p.category));
-  categorySet.forEach(cat=>{
-    let btn = document.createElement("button");
-    btn.innerText = cat;
-    btn.onclick = ()=>renderProducts(products.filter(p=>p.category===cat));
-    categoriesDiv.appendChild(btn);
-  });
 
   function renderProducts(list){
     container.innerHTML = "";
@@ -296,20 +245,10 @@ window.onload = function() {
     });
   }
 
-  window.searchSuggestion = function(text){
-    if(!text){ searchSuggestions.style.display="none"; renderProducts(products); return; }
-    let filtered = products.filter(p=>p.name.toLowerCase().includes(text.toLowerCase()));
+  window.searchProduct = function(text){
+    let filtered = products.filter(p => p.name.toLowerCase().includes(text.toLowerCase()));
     renderProducts(filtered);
-    searchSuggestions.innerHTML = "";
-    filtered.forEach((p,i)=>{
-      let div = document.createElement("div");
-      div.innerText = p.name;
-      div.onclick = ()=>{ document.querySelector(".search-box").value = p.name; searchSuggestions.style.display="none"; renderProducts([p]); };
-      searchSuggestions.appendChild(div);
-    });
-    searchSuggestions.style.display = filtered.length ? "block" : "none";
   }
-
   renderProducts(products);
 
   window.changeQty = function(i,delta){
