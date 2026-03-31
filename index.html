@@ -53,6 +53,25 @@ justify-content:center;
       box-shadow:0 4px 10px rgba(0,0,0,0.1);
     }
 
+    /* Slide-out cart CSS */
+.cart-box {
+  position: fixed;
+  top: 60px; /* search ke neeche */
+  right: 0;
+  width: 280px;
+  height: calc(100% - 60px); /* header ke neeche poora height cover */
+  background: white;
+  padding: 10px;
+  border-radius: 10px 0 0 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transform: translateX(100%); /* initially hidden */
+  transition: transform 0.3s ease-in-out;
+  z-index: 50; /* overlay ke upar */
+}
+.cart-box.open {
+  transform: translateX(0);
+}
+    
     .card img {
       width:100%;
       height:120px;
