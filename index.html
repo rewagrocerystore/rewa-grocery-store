@@ -5,99 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body { font-family: Arial; margin:0; background:#f2f3f7; }
+    body { font-family: Arial; margin:0; background:#f5f5f5; }
 
     header {
-      background: linear-gradient(135deg,#2ecc71,#27ae60);
+      background:#2ecc71;
       color:white;
-      padding:20px;
+      padding:15px;
+      position:relative;
       text-align:center;
-      position:sticky;
-      top:0;
-      z-index:10;
+      font-size:22px;
+      font-weight:bold;
     }
 
-    .title { font-size:24px; font-weight:bold; }
-    .tagline { font-size:14px; margin-top:8px; }
+    .title { font-size:22px; font-weight:bold; }
+    .tagline { font-size:14px; margin-top:5px; }
 
     .search-box {
-      margin-top:10px;
-      padding:10px;
-      width:90%;
-      max-width:300px;
+      position:absolute;
+      right:15px;
+      top:50%;
+      transform:translateY(-50%);
+      padding:6px;
       border:none;
-      border-radius:25px;
-    }
-
-    .trust {
-      text-align:center;
-      padding:10px;
-      font-weight:bold;
-      color:#444;
+      border-radius:5px;
+      width:150px;
     }
 
     .container {
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      grid-template-columns:repeat(auto-fill,minmax(200px,200px));
+      justify-content:center;
       gap:15px;
-      padding:15px;
+      padding:20px;
     }
 
     .card {
       background:white;
-      padding:10px;
-      border-radius:15px;
+      padding:15px;
+      border-radius:10px;
       text-align:center;
-      box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
     }
 
-    .card img { width:100%; height:120px; object-fit:cover; border-radius:10px; }
+    .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
+    .price { color:#2ecc71; font-weight:bold; }
 
-    .price { color:#27ae60; font-weight:bold; font-size:18px; }
-
-    .qty { display:flex; justify-content:center; gap:10px; }
-
-    button { padding:6px 10px; border:none; border-radius:8px; cursor:pointer; }
-    .add { background:#2ecc71; color:white; }
+    button { padding:8px; margin:5px; border:none; border-radius:5px; cursor:pointer; }
+    .add { background:#25D366; color:white; }
+    .pay { background:#6c5ce7; color:white; }
+    .qty { display:flex; justify-content:center; gap:5px; }
+    input { width:100%; padding:8px; margin-top:5px; }
 
     /* Cart */
     .cart-box {
       position: fixed;
-      right:0;
-      top:0;
-      width:320px;
-      height:100%;
-      background:white;
-      transform:translateX(100%);
-      transition:0.3s;
-      padding:10px;
-      z-index:20;
-      display:flex;
-      flex-direction:column;
+      top: 0;
+      right: 0;
+      width: 320px;
+      max-width: 90%;
+      height: 100%;
+      background: white;
+      padding: 10px;
+      border-radius: 0 0 0 10px;
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
-    .cart-box.open { transform:translateX(0); }
+    .cart-box.open { transform: translateX(0); }
 
-    .cart-items { flex:1; overflow:auto; }
+    .cart-items-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
 
-    input { width:100%; padding:8px; margin-top:5px; border-radius:5px; }
+    .cart-item {
+      display:flex;
+      align-items:center;
+      margin-bottom:8px;
+      gap:10px;
+    }
+
+    .cart-checkout {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding:10px 0;
+    }
+
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 40;
+    }
 
     #floatingCart {
-      position:fixed;
-      bottom:20px;
-      right:20px;
-      background:#2ecc71;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background:#25D366;
       color:white;
-      width:60px;
-      height:60px;
+      border:none;
       border-radius:50%;
-      font-size:24px;
+      width:50px;
+      height:50px;
       display:flex;
       justify-content:center;
       align-items:center;
+      font-size:24px;
+      cursor:pointer;
+      z-index:55;
     }
-
-    .reviews { padding:20px; }
-    .review { background:white; padding:10px; margin:10px 0; border-radius:10px; }
 
   </style>
 </head>
@@ -105,48 +129,65 @@
 <body>
 
 <header>
-  <div class="title">🛒 Rewa Grocery</div>
+  <div class="title">🛒 Rewa Grocery Store</div>
   <div class="tagline">
     📍 Only in Rewa City <br>
     🚚 Delivery in 2–3 hours <br>
     🎉 Free delivery above ₹500
   </div>
-
   <input type="text" class="search-box" placeholder="Search..." onkeyup="searchProduct(this.value)">
 </header>
 
-<div class="trust">⭐ 100+ Happy Customers | 📞 8109788338</div>
-
 <div class="container" id="products"></div>
 
-<!-- Reviews -->
-<div class="reviews">
-  <h2>💬 Customer Reviews</h2>
-  <div class="review">⭐⭐⭐⭐⭐ Fast delivery – Rahul</div>
-  <div class="review">⭐⭐⭐⭐⭐ Best service – Pooja</div>
+<!-- ⭐ Reviews Added -->
+<div style="padding:20px;">
+  <h2 style="text-align:center;">💬 Customer Reviews</h2>
+
+  <div style="background:white; padding:15px; margin:10px; border-radius:10px;">
+    ⭐⭐⭐⭐⭐ <br>
+    "Bahut fast delivery! 2 ghante me samaan aa gaya." <br>
+    – Rahul, Rewa
+  </div>
+
+  <div style="background:white; padding:15px; margin:10px; border-radius:10px;">
+    ⭐⭐⭐⭐⭐ <br>
+    "Prices bhi sahi hain aur service bhi mast hai." <br>
+    – Pooja, Rewa
+  </div>
+
+  <div style="background:white; padding:15px; margin:10px; border-radius:10px;">
+    ⭐⭐⭐⭐⭐ <br>
+    "Ab market jane ki zarurat nahi padti 😄" <br>
+    – Amit, Rewa
+  </div>
 </div>
 
-<!-- Cart -->
+<div id="overlay"></div>
+
 <div class="cart-box" id="cartBox">
   <h3>🛒 Cart</h3>
-  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-items-wrapper" id="cartItems"></div>
 
-  <p>Total: ₹<span id="total">0</span></p>
+  <div class="cart-checkout">
+    <p>Total: ₹<span id="grandTotal">0</span></p>
 
-  <input id="name" placeholder="Name">
-  <input id="mobile" placeholder="Mobile">
-  <input id="address" placeholder="Address">
+    <input type="text" id="name" placeholder="Enter your name">
+    <input type="tel" id="mobile" placeholder="Enter mobile number">
+    <input type="text" id="address" placeholder="Enter address">
 
-  <button onclick="placeOrder()">Order on WhatsApp</button>
+    <button class="add" onclick="placeOrder()">WhatsApp Order</button>
+  </div>
 </div>
 
-<div id="floatingCart" onclick="toggleCart()">🛒</div>
+<div id="floatingCart" onclick="openCart()">🛒</div>
 
 <script>
 const whatsappNumber = "918109788338";
+let cart = [];
 
 const products = [
-  { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
+ { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
     { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
     { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
     { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
@@ -160,59 +201,48 @@ const products = [
     { name:"Apple (1kg)", price:250, img:"https://assets.clevelandclinic.org/transform/cd71f4bd-81d4-45d8-a450-74df78e4477a/Apples-184940975-770x533-1_jpg" }
 ];
 
-let cart=[];
-
 function renderProducts(list){
-  let html="";
+  const container = document.getElementById("products");
+  container.innerHTML="";
   list.forEach((p,i)=>{
-    html+=`
+    container.innerHTML += `
       <div class="card">
-        <img src="${p.img}">
-        <h4>${p.name}</h4>
-        <div class="price">₹${p.price}</div>
-        <div class="qty">
-          <button onclick="changeQty(${i},-1)">-</button>
-          <span id="q${i}">0</span>
-          <button onclick="changeQty(${i},1)">+</button>
+        <h3>${p.name}</h3>
+        <p class='price'>₹${p.price}</p>
+        <div class='qty'>
+          <button onclick='changeQty(${i},-1)'>-</button>
+          <span id='qty${i}'>0</span>
+          <button onclick='changeQty(${i},1)'>+</button>
         </div>
       </div>
     `;
   });
-  document.getElementById("products").innerHTML=html;
 }
 
 function changeQty(i,d){
-  let item=cart.find(x=>x.i===i);
-  if(!item && d>0) cart.push({i,qty:1});
+  let item = cart.find(x=>x.index===i);
+  if(!item && d>0) cart.push({index:i, qty:1});
   else if(item){
-    item.qty+=d;
-    if(item.qty<=0) cart=cart.filter(x=>x.i!==i);
+    item.qty += d;
+    if(item.qty<=0) cart = cart.filter(x=>x.index!==i);
   }
   updateCart();
 }
 
 function updateCart(){
   let total=0;
-  let html="";
-  products.forEach((_,i)=>document.getElementById("q"+i).innerText=0);
+  document.getElementById("cartItems").innerHTML="";
+  products.forEach((_,i)=>{ let el=document.getElementById("qty"+i); if(el) el.innerText=0; });
 
   cart.forEach(c=>{
-    let p=products[c.i];
-    total+=p.price*c.qty;
-    document.getElementById("q"+c.i).innerText=c.qty;
-    html+=`${p.name} x${c.qty}<br>`;
+    let p=products[c.index];
+    total += p.price*c.qty;
+    let el=document.getElementById("qty"+c.index); if(el) el.innerText=c.qty;
+
+    document.getElementById("cartItems").innerHTML += `${p.name} x${c.qty}<br>`;
   });
 
-  document.getElementById("cartItems").innerHTML=html;
-  document.getElementById("total").innerText=total;
-}
-
-function toggleCart(){
-  document.getElementById("cartBox").classList.toggle("open");
-}
-
-function searchProduct(t){
-  renderProducts(products.filter(p=>p.name.toLowerCase().includes(t.toLowerCase())));
+  document.getElementById("grandTotal").innerText=total;
 }
 
 function placeOrder(){
@@ -222,12 +252,20 @@ function placeOrder(){
   let mobile=document.getElementById("mobile").value;
   let address=document.getElementById("address").value;
 
-  let items=cart.map(c=>products[c.i].name+" x"+c.qty).join(", ");
-  let total=document.getElementById("total").innerText;
+  let items=cart.map(c=>products[c.index].name+" x"+c.qty).join(", ");
+  let total=document.getElementById("grandTotal").innerText;
 
   let msg=`🛒 Order\nName:${name}\nMobile:${mobile}\nItems:${items}\nTotal:₹${total}\nAddress:${address}`;
 
   window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
+}
+
+function openCart(){
+  document.getElementById("cartBox").classList.add("open");
+}
+
+function searchProduct(t){
+  renderProducts(products.filter(p=>p.name.toLowerCase().includes(t.toLowerCase())));
 }
 
 renderProducts(products);
