@@ -5,208 +5,223 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
-    body { font-family: Arial; margin:0; background:#f5f5f5; }
-
-    header {
-      background:#2ecc71;
-      color:white;
-      padding:15px;
-      position:relative;
-      text-align:center;
-      font-size:22px;
-      font-weight:bold;
+    body {
+      font-family: Arial;
+      margin:0;
+      background:#f2f3f7;
     }
 
-    .title { font-size:22px; font-weight:bold; }
-    .tagline { font-size:14px; margin-top:5px; }
+    header {
+      background: linear-gradient(135deg,#2ecc71,#27ae60);
+      color:white;
+      padding:20px;
+      text-align:center;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    .title { font-size:24px; font-weight:bold; }
+    .tagline { font-size:14px; margin-top:8px; }
 
     .search-box {
-      position:absolute;
-      right:15px;
-      top:50%;
-      transform:translateY(-50%);
-      padding:6px;
+      margin-top:10px;
+      padding:10px;
+      width:90%;
+      max-width:300px;
       border:none;
-      border-radius:5px;
-      width:150px;
+      border-radius:25px;
+      outline:none;
+    }
+
+    .trust {
+      text-align:center;
+      padding:10px;
+      font-weight:bold;
+      color:#444;
     }
 
     .container {
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(200px,200px));
-      justify-content:center;
+      grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
       gap:15px;
-      padding:20px;
+      padding:15px;
     }
 
     .card {
       background:white;
-      padding:15px;
-      border-radius:10px;
+      padding:10px;
+      border-radius:15px;
       text-align:center;
-      box-shadow:0 4px 10px rgba(0,0,0,0.1);
-      position: relative;
+      box-shadow:0 4px 15px rgba(0,0,0,0.1);
+      transition:0.2s;
     }
 
-    .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
-    .price { color:#2ecc71; font-weight:bold; }
+    .card:hover {
+      transform:scale(1.05);
+    }
 
-    button { padding:8px; margin:5px; border:none; border-radius:5px; cursor:pointer; }
-    .add { background:#25D366; color:white; }
-    .pay { background:#6c5ce7; color:white; }
-    .qty { display:flex; justify-content:center; gap:5px; }
-    input { width:100%; padding:8px; margin-top:5px; }
+    .card img {
+      width:100%;
+      height:120px;
+      object-fit:cover;
+      border-radius:10px;
+    }
 
-    /* Slide-out Cart CSS */
+    .price {
+      color:#27ae60;
+      font-weight:bold;
+      font-size:18px;
+    }
+
+    .qty {
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      margin-top:5px;
+    }
+
+    button {
+      border:none;
+      border-radius:8px;
+      padding:6px 10px;
+      cursor:pointer;
+    }
+
+    .add { background:#2ecc71; color:white; }
+    .minus { background:#ddd; }
+
+    /* Cart */
     .cart-box {
-      position: fixed;
-      top: 0;
-      right: 0;
-      width: 320px;
-      max-width: 90%;
-      height: 100%;
-      background: white;
-      padding: 10px;
-      border-radius: 0 0 0 10px;
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      position:fixed;
+      right:0;
+      top:0;
+      width:300px;
+      height:100%;
+      background:white;
+      transform:translateX(100%);
+      transition:0.3s;
+      padding:10px;
+      z-index:20;
+      display:flex;
+      flex-direction:column;
     }
-    .cart-box.open { transform: translateX(0); }
 
-    .cart-items-wrapper {
-      flex: 1;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      margin-bottom: 10px;
+    .cart-box.open { transform:translateX(0); }
+
+    .cart-items {
+      flex:1;
+      overflow:auto;
     }
 
     .cart-item {
       display:flex;
-      align-items:center;
-      margin-bottom:8px;
       gap:10px;
-    }
-    .cart-item img { width:40px; height:40px; object-fit:cover; border-radius:5px; }
-
-    .cart-qty { display:flex; align-items:center; gap:5px; }
-    .cart-qty button { width:25px; height:25px; font-size:16px; padding:0; }
-
-    /* Sticky Checkout Section */
-    .cart-checkout {
-      position: sticky;
-      bottom: 0;
-      background: white;
-      padding:10px 0;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.15);
-    }
-    .cart-checkout p { margin:5px; font-weight:bold; }
-    .cart-checkout button { width:48%; }
-
-    /* Overlay */
-    #overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      z-index: 40;
+      margin-bottom:10px;
     }
 
-    /* Floating Cart Icon */
-    #floatingCart {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background:#25D366;
-      color:white;
-      border:none;
-      border-radius:50%;
-      width:50px;
-      height:50px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-size:24px;
-      cursor:pointer;
-      z-index:55;
-      box-shadow:0 4px 10px rgba(0,0,0,0.2);
-    }
-    #cartBadge {
-      position:absolute;
-      top:-5px;
-      right:-5px;
-      background:red;
-      color:white;
-      width:18px;
-      height:18px;
-      font-size:12px;
-      border-radius:50%;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-weight:bold;
-    }
-
-    /* Add-to-cart animation image */
-    .flying-img {
-      position: fixed;
-      width:50px;
-      height:50px;
-      object-fit:cover;
+    .cart-item img {
+      width:40px;
+      height:40px;
       border-radius:5px;
-      z-index:100;
-      pointer-events:none;
-      transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
     }
+
+    .checkout {
+      border-top:1px solid #eee;
+      padding-top:10px;
+    }
+
+    input {
+      width:100%;
+      padding:8px;
+      margin-top:5px;
+      border-radius:5px;
+      border:1px solid #ddd;
+    }
+
+    .pay { background:#6c5ce7; color:white; width:48%; }
+    .order { background:#2ecc71; color:white; width:48%; }
+
+    #cartBtn {
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      background:#2ecc71;
+      color:white;
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      font-size:24px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .reviews {
+      padding:20px;
+    }
+
+    .review {
+      background:white;
+      padding:10px;
+      border-radius:10px;
+      margin:10px 0;
+    }
+
   </style>
 </head>
 
 <body>
 
 <header>
-  <div class="title">🛒 Rewa Grocery Store</div>
-  <div class="tagline">🛍️ Fresh Groceries at Your Doorstep <br> 🚚 Order above ₹500 & get FREE Delivery</div>
+  <div class="title">🛒 Rewa Grocery</div>
+  <div class="tagline">
+    📍 Only in Rewa City <br>
+    🚚 Delivery in 2–3 hours <br>
+    🎉 Free delivery above ₹500
+  </div>
+
   <input type="text" class="search-box" placeholder="Search..." onkeyup="searchProduct(this.value)">
 </header>
 
+<div class="trust">⭐ 100+ Happy Customers in Rewa | 📞 8109788338</div>
+
 <div class="container" id="products"></div>
 
-<div id="overlay"></div>
+<!-- Reviews -->
+<div class="reviews">
+  <h2>💬 Customer Reviews</h2>
 
+  <div class="review">⭐⭐⭐⭐⭐ Fast delivery! – Rahul</div>
+  <div class="review">⭐⭐⭐⭐⭐ Best service in Rewa – Pooja</div>
+  <div class="review">⭐⭐⭐⭐⭐ Very convenient 😄 – Amit</div>
+</div>
+
+<!-- Cart -->
 <div class="cart-box" id="cartBox">
-  <h3>🛒 Cart</h3>
+  <h3>Cart</h3>
+  <div class="cart-items" id="cartItems"></div>
 
-  <div class="cart-items-wrapper" id="cartItems"></div>
+  <div class="checkout">
+    <p>Total: ₹<span id="total">0</span></p>
 
-  <div class="cart-checkout">
-    <p>Items: ₹<span id="itemsTotal">0</span></p>
-    <p>Delivery: ₹<span id="delivery">30</span></p>
-    <p>Total: ₹<span id="grandTotal">0</span></p>
-
-    <input type="text" id="name" placeholder="Enter your name">
-    <input type="tel" id="mobile" placeholder="Enter mobile number">
-    <input type="text" id="address" placeholder="Enter address">
+    <input placeholder="Name" id="name">
+    <input placeholder="Mobile">
+    <input placeholder="Address">
 
     <div style="display:flex; justify-content:space-between;">
-      <button class="pay" onclick="goToPayment()">Pay via UPI</button>
-      <button class="add" onclick="placeOrder()">WhatsApp Order</button>
+      <button class="pay">UPI</button>
+      <button class="order">Order</button>
     </div>
   </div>
 </div>
 
-<div id="floatingCart" onclick="openCart()">🛒<div id="cartBadge">0</div></div>
+<div id="cartBtn" onclick="toggleCart()">🛒</div>
 
 <script>
-window.onload = function() {
-
-  const whatsappNumber = "918109788338";
-  let cart = [];
-
-  const products = [
-    { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
+const products = [
+  { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
     { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
     { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
     { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
@@ -218,128 +233,68 @@ window.onload = function() {
     { name:"Brinjal (1kg)", price:35, img:"https://www.chefadora.com/_next/image?url=https%3A%2F%2Fchefadora-production.s3.ap-southeast-2.amazonaws.com%2Fmedium_ingredient_brinjal_1ed0af6b11.png&w=3840&q=75" },
     { name:"Banana (1kg)", price:70, img:"https://m.media-amazon.com/images/I/51ebZJ+DR4L._AC_UF894,1000_QL80_.jpg" },
     { name:"Apple (1kg)", price:250, img:"https://assets.clevelandclinic.org/transform/cd71f4bd-81d4-45d8-a450-74df78e4477a/Apples-184940975-770x533-1_jpg" }
-  ];
+];
 
-  const container = document.getElementById("products");
-  const cartBox = document.getElementById("cartBox");
-  const overlay = document.getElementById("overlay");
-  const cartBadge = document.getElementById("cartBadge");
-  const floatingCart = document.getElementById("floatingCart");
+let cart=[];
 
-  function renderProducts(list){
-    container.innerHTML = "";
-    list.forEach((p,i)=>{
-      const div=document.createElement("div");
-      div.className="card";
-      div.innerHTML=`
+function renderProducts(list){
+  const container=document.getElementById("products");
+  container.innerHTML="";
+  list.forEach((p,i)=>{
+    container.innerHTML+=`
+      <div class="card">
         <img src="${p.img}">
-        <h3>${p.name}</h3>
-        <p class='price'>₹${p.price}</p>
-        <div class='qty'>
-          <button onclick='changeQty(${i},-1)'>-</button>
-          <span id='qty${i}'>0</span>
-          <button onclick='addToCartAnimation(${i})'>+</button>
+        <h4>${p.name}</h4>
+        <div class="price">₹${p.price}</div>
+        <div class="qty">
+          <button onclick="changeQty(${i},-1)">-</button>
+          <span id="q${i}">0</span>
+          <button onclick="changeQty(${i},1)">+</button>
         </div>
-      `;
-      container.appendChild(div);
-    });
+      </div>
+    `;
+  });
+}
+
+function changeQty(i,d){
+  let item=cart.find(x=>x.i===i);
+  if(!item && d>0) cart.push({i,qty:1});
+  else if(item){
+    item.qty+=d;
+    if(item.qty<=0) cart=cart.filter(x=>x.i!==i);
   }
+  updateCart();
+}
 
-  window.searchProduct = function(text){
-    let filtered = products.filter(p => p.name.toLowerCase().includes(text.toLowerCase()));
-    renderProducts(filtered);
-  }
-  renderProducts(products);
+function updateCart(){
+  let total=0;
+  let div=document.getElementById("cartItems");
+  div.innerHTML="";
+  products.forEach((_,i)=>document.getElementById("q"+i).innerText=0);
 
-  window.changeQty = function(i,delta){
-    let item = cart.find(x=>x.index===i);
-    if(!item && delta>0) cart.push({index:i, qty:1});
-    else if(item){ item.qty += delta; if(item.qty<=0) cart = cart.filter(x=>x.index!==i); }
-    updateCart();
-  }
+  cart.forEach(c=>{
+    let p=products[c.i];
+    total+=p.price*c.qty;
+    document.getElementById("q"+c.i).innerText=c.qty;
 
-  function updateCart(){
-    let total=0; let itemCount=0;
-    const cartItemsDiv = document.getElementById("cartItems");
-    cartItemsDiv.innerHTML="";
-    products.forEach((_,i)=>{ let el = document.getElementById("qty"+i); if(el) el.innerText=0; });
-    cart.forEach(c=>{
-      let p=products[c.index]; 
-      total += p.price*c.qty; itemCount += c.qty;
-      let el = document.getElementById("qty"+c.index); if(el) el.innerText=c.qty;
-
-      let div = document.createElement("div");
-      div.className="cart-item";
-      div.innerHTML = `
-        <img src="${p.img}">
-        <span>${p.name}</span>
-        <div class="cart-qty">
-          <button onclick="changeQty(${c.index},-1)">-</button>
-          <span>${c.qty}</span>
-          <button onclick="changeQty(${c.index},1)">+</button>
-        </div>
-      `;
-      cartItemsDiv.appendChild(div);
-    });
-    let delivery = total>=500?0:30;
-    document.getElementById("itemsTotal").innerText=total;
-    document.getElementById("delivery").innerText=delivery;
-    document.getElementById("grandTotal").innerText=total+delivery;
-    cartBadge.innerText=itemCount;
-  }
-
-  window.goToPayment = function(){
-    let total = document.getElementById("grandTotal").innerText;
-    if(total == 0) return alert("Cart empty hai");
-    window.location.href = "payment.html?amount=" + total;
-  }
-
-  window.placeOrder = function(){
-    if(cart.length===0) return alert("Cart empty hai");
-    let name = document.getElementById("name").value;
-    let mobile = document.getElementById("mobile").value;
-    let address = document.getElementById("address").value;
-    let items = cart.map(c=>{ let p=products[c.index]; return `${p.name} x${c.qty}`; }).join(", ");
-    let total=document.getElementById("grandTotal").innerText;
-    let msg=`🛒 New Order\n\nName: ${name}\nMobile: ${mobile}\nItems: ${items}\nTotal: ₹${total}\nPayment: UPI Done\nAddress: ${address}`;
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-  }
-
-  window.openCart = function(){ cartBox.classList.add("open"); overlay.style.display="block"; }
-  window.closeCart = function(){ cartBox.classList.remove("open"); overlay.style.display="none"; }
-  overlay.addEventListener("click", closeCart);
-
-  // Swipe down to close on mobile
-  let startY=0;
-  cartBox.addEventListener('touchstart', e=>{ startY=e.touches[0].clientY; });
-  cartBox.addEventListener('touchmove', e=>{
-    let currentY=e.touches[0].clientY;
-    if(currentY - startY > 100) closeCart();
+    div.innerHTML+=`<div class="cart-item">
+      <img src="${p.img}">
+      ${p.name} x${c.qty}
+    </div>`;
   });
 
-  // Animation
-  window.addToCartAnimation = function(i){
-    let cardImg = document.querySelectorAll(".card img")[i];
-    let imgClone = cardImg.cloneNode(true);
-    imgClone.className = "flying-img";
-    document.body.appendChild(imgClone);
-    let rect = cardImg.getBoundingClientRect();
-    imgClone.style.left = rect.left + "px";
-    imgClone.style.top = rect.top + "px";
+  document.getElementById("total").innerText=total;
+}
 
-    let cartRect = floatingCart.getBoundingClientRect();
-    setTimeout(()=>{
-      imgClone.style.transform = `translate(${cartRect.left - rect.left}px, ${cartRect.top - rect.top}px) scale(0.1)`;
-      imgClone.style.opacity = 0;
-    },10);
+function toggleCart(){
+  document.getElementById("cartBox").classList.toggle("open");
+}
 
-    setTimeout(()=>{
-      document.body.removeChild(imgClone);
-      changeQty(i,1);
-    },700);
-  }
+function searchProduct(t){
+  renderProducts(products.filter(p=>p.name.toLowerCase().includes(t.toLowerCase())));
+}
 
-};
+renderProducts(products);
 </script>
 
 </body>
