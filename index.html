@@ -47,47 +47,45 @@
       box-shadow:0 4px 10px rgba(0,0,0,0.1);
     }
 
-    .card img {
-      width:100%;
-      height:120px;
-      object-fit:cover;
-      border-radius:8px;
-    }
-
+    .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
     .price { color:#2ecc71; font-weight:bold; }
 
-    button {
-      padding:8px;
-      margin:5px;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-    }
-
+    button { padding:8px; margin:5px; border:none; border-radius:5px; cursor:pointer; }
     .add { background:#25D366; color:white; }
     .pay { background:#6c5ce7; color:white; }
-
     .qty { display:flex; justify-content:center; gap:5px; }
-
     input { width:100%; padding:8px; margin-top:5px; }
 
     /* Slide-out Cart CSS */
     .cart-box {
       position: fixed;
-      top: 60px;
+      top: 0;
       right: 0;
-      width: 280px;
-      height: calc(100% - 60px);
+      width: 320px;
+      max-width: 90%;
+      height: 100%;
       background: white;
       padding: 10px;
-      border-radius: 10px 0 0 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border-radius: 0 0 0 10px;
       transform: translateX(100%);
       transition: transform 0.3s ease-in-out;
       z-index: 50;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
     }
     .cart-box.open { transform: translateX(0); }
+
+    .cart-item {
+      display:flex;
+      align-items:center;
+      margin-bottom:8px;
+      gap:10px;
+    }
+    .cart-item img { width:40px; height:40px; object-fit:cover; border-radius:5px; }
+
+    /* Qty inside cart */
+    .cart-qty { display:flex; align-items:center; gap:5px; }
+    .cart-qty button { width:25px; height:25px; font-size:16px; padding:0; }
 
     /* Overlay */
     #overlay {
@@ -117,8 +115,6 @@
       z-index:55;
       box-shadow:0 4px 10px rgba(0,0,0,0.2);
     }
-
-    /* Badge */
     #cartBadge {
       position:absolute;
       top:-5px;
@@ -134,7 +130,6 @@
       align-items:center;
       font-weight:bold;
     }
-
   </style>
 </head>
 
@@ -142,21 +137,15 @@
 
 <header>
   <div class="title">🛒 Rewa Grocery Store</div>
-  <div class="tagline">
-    🛍️ Fresh Groceries at Your Doorstep <br>
-    🚚 Order above ₹500 & get FREE Delivery
-  </div>
-
+  <div class="tagline">🛍️ Fresh Groceries at Your Doorstep <br> 🚚 Order above ₹500 & get FREE Delivery</div>
   <input type="text" class="search-box" placeholder="Search..." onkeyup="searchProduct(this.value)">
 </header>
 
 <div class="container" id="products"></div>
 
-<!-- Overlay -->
 <div id="overlay"></div>
 
-<!-- Slide-out Cart -->
-<div class="cart-box">
+<div class="cart-box" id="cartBox">
   <h3>🛒 Cart</h3>
   <div id="cartItems"></div>
 
@@ -172,10 +161,7 @@
   <button class="add" onclick="placeOrder()">Place Order via WhatsApp</button>
 </div>
 
-<!-- Floating Cart Icon -->
-<div id="floatingCart" onclick="openCart()">🛒
-  <div id="cartBadge">0</div>
-</div>
+<div id="floatingCart" onclick="openCart()">🛒<div id="cartBadge">0</div></div>
 
 <script>
 window.onload = function() {
@@ -187,23 +173,14 @@ window.onload = function() {
     { name:"Rice (1kg)", price:70, img:"https://c.ndtvimg.com/2023-08/brlp7gk_uncooked-rice-or-rice-grains_625x300_18_August_23.jpg" },
     { name:"Flour (1kg)", price:45, img:"https://www.unlockfood.ca/EatRightOntario/media/Website-images-resized/All-about-grain-flours-resized.jpg" },
     { name:"Milk (1L)", price:75, img:"https://dairynutrition.ca/sites/dairynutrition/files/image_file_browser/dn_article/2023-03/shutterstock_4305538_1182x788px.jpg" },
-    { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" },
-    { name:"Refined Oil (1L)", price:200, img:"https://thumbs.dreamstime.com/b/sunflower-oil-factory-line-production-filling-refined-seeds-conveyor-food-industry-116766070.jpg" },
-    { name:"Potato (1kg)", price:30, img:"https://www.kew.org/sites/default/files/styles/plant_image_953w/public/2025-01/many-potatoes-solanum-tuberosum.jpg.webp?itok=vTBE-XTL" },
-    { name:"Tomato (1kg)", price:25, img:"https://www.lovefoodhatewaste.com/sites/default/files/styles/twitter_card_image/public/2022-08/Tomatoes-sh769524253.jpg.webp?itok=QYFYzSFr" },
-    { name:"Onion (1kg)", price:25, img:"https://cdn.pixabay.com/photo/2016/06/02/01/35/vegetables-1430062_640.jpg" },
-    { name:"Bottle Gourd (1kg)", price:45, img:"https://www.bbassets.com/media/uploads/p/l/50000468_8-fresho-bottle-gourd-organically-grown.jpg" },
-    { name:"Brinjal (1kg)", price:35, img:"https://www.chefadora.com/_next/image?url=https%3A%2F%2Fchefadora-production.s3.ap-southeast-2.amazonaws.com%2Fmedium_ingredient_brinjal_1ed0af6b11.png&w=3840&q=75" },
-    { name:"Banana (1kg)", price:70, img:"https://m.media-amazon.com/images/I/51ebZJ+DR4L._AC_UF894,1000_QL80_.jpg" },
-    { name:"Apple (1kg)", price:250, img:"https://assets.clevelandclinic.org/transform/cd71f4bd-81d4-45d8-a450-74df78e4477a/Apples-184940975-770x533-1_jpg" }
+    { name:"Sugar (1kg)", price:50, img:"https://vrmshoppe.com/wp-content/uploads/2021/05/white-sugar-500x500-1.jpg" }
   ];
 
   const container = document.getElementById("products");
-  const cartBox = document.querySelector(".cart-box");
+  const cartBox = document.getElementById("cartBox");
   const overlay = document.getElementById("overlay");
   const cartBadge = document.getElementById("cartBadge");
 
-  // Render products
   function renderProducts(list){
     container.innerHTML = "";
     list.forEach((p,i)=>{
@@ -223,52 +200,55 @@ window.onload = function() {
     });
   }
 
-  // Search
   window.searchProduct = function(text){
     let filtered = products.filter(p => p.name.toLowerCase().includes(text.toLowerCase()));
     renderProducts(filtered);
   }
-
-  // Initial load
   renderProducts(products);
 
-  // Quantity change
   window.changeQty = function(i,delta){
     let item = cart.find(x=>x.index===i);
-    if(!item && delta>0){ cart.push({index:i, qty:1}); } 
+    if(!item && delta>0) cart.push({index:i, qty:1});
     else if(item){ item.qty += delta; if(item.qty<=0) cart = cart.filter(x=>x.index!==i); }
     updateCart();
   }
 
-  // Update cart
   function updateCart(){
-    let total=0;
-    let itemCount=0;
-    document.getElementById("cartItems").innerHTML="";
+    let total=0; let itemCount=0;
+    const cartItemsDiv = document.getElementById("cartItems");
+    cartItemsDiv.innerHTML="";
     products.forEach((_,i)=>{ let el = document.getElementById("qty"+i); if(el) el.innerText=0; });
     cart.forEach(c=>{
       let p=products[c.index]; 
-      total += p.price*c.qty;
-      itemCount += c.qty;
+      total += p.price*c.qty; itemCount += c.qty;
       let el = document.getElementById("qty"+c.index); if(el) el.innerText=c.qty;
-      let div=document.createElement("div"); div.innerHTML=`${p.name} x${c.qty}`; document.getElementById("cartItems").appendChild(div);
+
+      let div = document.createElement("div");
+      div.className="cart-item";
+      div.innerHTML = `
+        <img src="${p.img}">
+        <span>${p.name}</span>
+        <div class="cart-qty">
+          <button onclick="changeQty(${c.index},-1)">-</button>
+          <span>${c.qty}</span>
+          <button onclick="changeQty(${c.index},1)">+</button>
+        </div>
+      `;
+      cartItemsDiv.appendChild(div);
     });
     let delivery = total>=500?0:30;
     document.getElementById("itemsTotal").innerText=total;
     document.getElementById("delivery").innerText=delivery;
     document.getElementById("grandTotal").innerText=total+delivery;
-    // Update badge
-    cartBadge.innerText = itemCount;
+    cartBadge.innerText=itemCount;
   }
 
-  // Payment page
   window.goToPayment = function(){
     let total = document.getElementById("grandTotal").innerText;
     if(total == 0) return alert("Cart empty hai");
     window.location.href = "payment.html?amount=" + total;
   }
 
-  // WhatsApp order
   window.placeOrder = function(){
     if(cart.length===0) return alert("Cart empty hai");
     let name = document.getElementById("name").value;
@@ -276,23 +256,22 @@ window.onload = function() {
     let address = document.getElementById("address").value;
     let items = cart.map(c=>{ let p=products[c.index]; return `${p.name} x${c.qty}`; }).join(", ");
     let total=document.getElementById("grandTotal").innerText;
-    let msg=`🛒 New Order
-
-Name: ${name}
-Mobile: ${mobile}
-
-Items: ${items}
-Total: ₹${total}
-Payment: UPI Done
-
-Address: ${address}`;
+    let msg=`🛒 New Order\n\nName: ${name}\nMobile: ${mobile}\nItems: ${items}\nTotal: ₹${total}\nPayment: UPI Done\nAddress: ${address}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
   }
 
   // Cart open/close
-  window.openCart = function() { cartBox.classList.add("open"); overlay.style.display="block"; }
-  window.closeCart = function() { cartBox.classList.remove("open"); overlay.style.display="none"; }
+  window.openCart = function(){ cartBox.classList.add("open"); overlay.style.display="block"; }
+  window.closeCart = function(){ cartBox.classList.remove("open"); overlay.style.display="none"; }
   overlay.addEventListener("click", closeCart);
+
+  // Swipe down to close on mobile
+  let startY=0;
+  cartBox.addEventListener('touchstart', e=>{ startY=e.touches[0].clientY; });
+  cartBox.addEventListener('touchmove', e=>{
+    let currentY=e.touches[0].clientY;
+    if(currentY - startY > 100) closeCart();
+  });
 
 };
 </script>
