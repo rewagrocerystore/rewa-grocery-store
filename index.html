@@ -45,6 +45,7 @@
       border-radius:10px;
       text-align:center;
       box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      position: relative;
     }
 
     .card img { width:100%; height:120px; object-fit:cover; border-radius:8px; }
@@ -102,7 +103,6 @@
       padding:10px 0;
       box-shadow: 0 -2px 5px rgba(0,0,0,0.15);
     }
-
     .cart-checkout p { margin:5px; font-weight:bold; }
     .cart-checkout button { width:48%; }
 
@@ -148,6 +148,18 @@
       justify-content:center;
       align-items:center;
       font-weight:bold;
+    }
+
+    /* Add-to-cart animation image */
+    .flying-img {
+      position: fixed;
+      width:50px;
+      height:50px;
+      object-fit:cover;
+      border-radius:5px;
+      z-index:100;
+      pointer-events:none;
+      transition: transform 0.7s ease-in-out, opacity 0.7s ease-in-out;
     }
   </style>
 </head>
@@ -204,6 +216,7 @@ window.onload = function() {
   const cartBox = document.getElementById("cartBox");
   const overlay = document.getElementById("overlay");
   const cartBadge = document.getElementById("cartBadge");
+  const floatingCart = document.getElementById("floatingCart");
 
   function renderProducts(list){
     container.innerHTML = "";
@@ -217,7 +230,7 @@ window.onload = function() {
         <div class='qty'>
           <button onclick='changeQty(${i},-1)'>-</button>
           <span id='qty${i}'>0</span>
-          <button onclick='changeQty(${i},1)'>+</button>
+          <button onclick='addToCartAnimation(${i})'>+</button>
         </div>
       `;
       container.appendChild(div);
@@ -295,6 +308,28 @@ window.onload = function() {
     let currentY=e.touches[0].clientY;
     if(currentY - startY > 100) closeCart();
   });
+
+  // Animation
+  window.addToCartAnimation = function(i){
+    let cardImg = document.querySelectorAll(".card img")[i];
+    let imgClone = cardImg.cloneNode(true);
+    imgClone.className = "flying-img";
+    document.body.appendChild(imgClone);
+    let rect = cardImg.getBoundingClientRect();
+    imgClone.style.left = rect.left + "px";
+    imgClone.style.top = rect.top + "px";
+
+    let cartRect = floatingCart.getBoundingClientRect();
+    setTimeout(()=>{
+      imgClone.style.transform = `translate(${cartRect.left - rect.left}px, ${cartRect.top - rect.top}px) scale(0.1)`;
+      imgClone.style.opacity = 0;
+    },10);
+
+    setTimeout(()=>{
+      document.body.removeChild(imgClone);
+      changeQty(i,1);
+    },700);
+  }
 
 };
 </script>
